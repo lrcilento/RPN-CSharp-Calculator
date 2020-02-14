@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-class RPN_CSharp_Calculator
+class Calculator
 {
     public static string rpn(string equation)
     {
