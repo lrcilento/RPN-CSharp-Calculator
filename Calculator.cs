@@ -12,9 +12,9 @@ class Calculator
         while (aux < equation.Length)
         {
             token = equation[aux];
-            if (token == '0' || token == '1' || token == '2' || token == '3' || token == '4' || token == '5' || token == '6' || token == '7' || token == '8' || token == '9' || token == '.')
+            if (token == '0' || token == '1' || token == '2' || token == '3' || token == '4' || token == '5' || token == '6' || token == '7' || token == '8' || token == '9' || token == '.' || token == '.')
             {
-                while (aux + 1 < equation.Length && (equation[aux + 1] == '0' || equation[aux + 1] == '1' || equation[aux + 1] == '2' || equation[aux + 1] == '3' || equation[aux + 1] == '4' || equation[aux + 1] == '5' || equation[aux + 1] == '6' || equation[aux + 1] == '7' || equation[aux + 1] == '8' || equation[aux + 1] == '9' || equation[aux + 1] == '.'))
+                while (aux + 1 < equation.Length && (equation[aux + 1] == '0' || equation[aux + 1] == '1' || equation[aux + 1] == '2' || equation[aux + 1] == '3' || equation[aux + 1] == '4' || equation[aux + 1] == '5' || equation[aux + 1] == '6' || equation[aux + 1] == '7' || equation[aux + 1] == '8' || equation[aux + 1] == '9' || equation[aux + 1] == '.' || equation[aux + 1] == ','))
                 {
                     rpn += token;
                     aux++;
@@ -87,48 +87,57 @@ class Calculator
         int aux = 0;
         double w, x, y, z = 0, pow = 0;
         char token;
-        bool longnumber = false, dec;
+        bool longnumber = false, dec = false;
         Stack<char> stack = new Stack<char>();
+        Stack<char> decimals = new Stack<char>();
         Stack<double> operands = new Stack<double>();
         while (aux < rpn.Length)
         {
             token = rpn[aux];
-            if (token == '0' || token == '1' || token == '2' || token == '3' || token == '4' || token == '5' || token == '6' || token == '7' || token == '8' || token == '9' || token == '.')
+            if (token == '0' || token == '1' || token == '2' || token == '3' || token == '4' || token == '5' || token == '6' || token == '7' || token == '8' || token == '9' || token == '.' || token == ',')
             {
-                while (aux + 1 < rpn.Length && (rpn[aux + 1] == '0' || rpn[aux + 1] == '1' || rpn[aux + 1] == '2' || rpn[aux + 1] == '3' || rpn[aux + 1] == '4' || rpn[aux + 1] == '5' || rpn[aux + 1] == '6' || rpn[aux + 1] == '7' || rpn[aux + 1] == '8' || rpn[aux + 1] == '9' || rpn[aux + 1] == '.'))
+                while (aux + 1 < rpn.Length && (rpn[aux + 1] == '0' || rpn[aux + 1] == '1' || rpn[aux + 1] == '2' || rpn[aux + 1] == '3' || rpn[aux + 1] == '4' || rpn[aux + 1] == '5' || rpn[aux + 1] == '6' || rpn[aux + 1] == '7' || rpn[aux + 1] == '8' || rpn[aux + 1] == '9' || rpn[aux + 1] == '.' || rpn[aux + 1] == ','))
                 {
                     stack.Push(token);
                     aux++;
                     token = rpn[aux];
                     longnumber = true;
+                    if (token == '.' || token == ',')
+                    {
+                        aux++;
+                        token = rpn[aux];
+                        dec = true;
+                        while (aux + 1 < rpn.Length && (rpn[aux + 1] == '0' || rpn[aux + 1] == '1' || rpn[aux + 1] == '2' || rpn[aux + 1] == '3' || rpn[aux + 1] == '4' || rpn[aux + 1] == '5' || rpn[aux + 1] == '6' || rpn[aux + 1] == '7' || rpn[aux + 1] == '8' || rpn[aux + 1] == '9'))
+                        {
+                            decimals.Push(token);
+                            aux++;
+                            token = rpn[aux];
+                        }
+                    }
                 }
                 if (longnumber)
                 {
-                    stack.Push(token);
-                    dec = false;
+                    if (dec == true) { decimals.Push(token); };
+                    if (dec == false) { stack.Push(token); };
                     while (stack.Count > 0)
                     {
-                        if (stack.Peek() == '.')
-                        {
-                            dec = true;
-                            pow = 1;
-                            stack.Pop();
-                        }
-                        if (dec == false)
-                        {
-                            w = (double)(stack.Pop() - '0');
-                            z += w * Math.Pow(10, pow);
-                            pow++;
-                        }
-                        else
-                        {
-                            w = (double)(stack.Pop() - '0');
-                            z += w / Math.Pow(10, pow);
-                        }
+
+                        w = (double)(stack.Pop() - '0');
+                        z += w * Math.Pow(10, pow);
+                        pow++;
+                    }
+                    pow = 1;
+                    while (decimals.Count > 0) { stack.Push(decimals.Pop());}
+                    while (stack.Count > 0)
+                    {
+                        w = (double)(stack.Pop() - '0');
+                        z += w / Math.Pow(10, pow);
+                        pow++; ;
                     }
                     operands.Push(z);
                     pow = 0;
                     z = 0;
+                    dec = false;
                     longnumber = false;
                 }
                 else
